@@ -189,7 +189,7 @@ is a verbatim paragraph, because its first line starts with a literal
 whitespace character (and there's no "=begin"..."=end" region around).
 
 The "=begin I<identifier>" ... "=end I<identifier>" commands stop
-paragraphs that they surround from being parsed as data or verbatim
+paragraphs that they surround from being parsed as ordinary or verbatim
 paragraphs, if I<identifier> doesn't begin with a colon.  This
 is discussed in detail in the section
 L</About Data Paragraphs and "=beginE<sol>=end" Regions>.
