@@ -3,17 +3,17 @@
 BEGIN {
     chdir 't' if -d 't';
     @INC = '../lib';
+    require './test.pl';
 }
 
 use strict;
 use warnings;
 
-use Test::More tests => 122;
+plan tests => 122;
 
 # The behaviour of the feature pragma should be tested by lib/switch.t
 # using the tests in t/lib/switch/*. This file tests the behaviour of
 # the switch ops themselves.
-              
 
 use feature 'switch';
 
@@ -816,8 +816,8 @@ SKIP: {
 	    default {$matched = 0}
 	}
     
-	is($obj->{called}, 0, "$test: called");
-	ok(!$matched, "$test: not matched");
+	is($obj->{called}, 1, "$test: called");
+	ok($matched, "$test: matched");
     }
 
     {
@@ -828,7 +828,7 @@ SKIP: {
 	    when ("other arg") {$matched = 1}
 	}
     
-	is($obj->{called}, 0, "$test: called");
+	is($obj->{called}, 1, "$test: called");
 	ok(!$matched, "$test: not matched");
     }
 

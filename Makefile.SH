@@ -201,6 +201,14 @@ static_list=' '
 for f in $static_ext; do
 	base=`echo "$f" | sed 's/.*\///'`
 	static_list="$static_list lib/auto/$f/$base\$(LIB_EXT)"
+    : Parallel makes reveal that we have some interdependencies
+    this_target="lib/auto/$f/$base\$(LIB_EXT)"
+    case $f in
+	Math/BigInt/FastCalc|Devel/NYTProf) extra_dep="$extra_dep
+$this_target: lib/auto/List/Util/Util\$(LIB_EXT)" ;;
+	Unicode/Normalize) extra_dep="$extra_dep
+$this_target: uni.data" ;;
+    esac
 done
 
 nonxs_list=' '
@@ -1369,7 +1377,7 @@ test.torture torturetest:	test_prep
 
 minitest.utf16: minitest.prep
 	- cd t && (rm -f perl$(EXE_EXT); $(LNS) ../miniperl$(EXE_EXT) perl$(EXE_EXT)) \
-		&& $(LDLIBPTH) $(RUN) ./perl TEST -minitest -utf16 base/*.t comp/*.t cmd/*.t run/*.t io/*.t op/*.t uni/*.t mro/*.t </dev/tty
+		&& $(LDLIBPTH) $(RUN) ./perl TEST -minitest -utf16 base/*.t comp/*.t cmd/*.t run/*.t io/*.t op/*.t uni/*.t </dev/tty
 
 test.utf16 check.utf16: test_prep
 	PERL=./perl $(MAKE) TEST_ARGS=-utf16 _test
@@ -1430,7 +1438,7 @@ minitest.prep:
 # is crashing.
 minitest: miniperl$(EXE_EXT) lib/re.pm minitest.prep
 	- cd t && (rm -f perl$(EXE_EXT); $(LNS) ../miniperl$(EXE_EXT) perl$(EXE_EXT)) \
-		&& $(LDLIBPTH) $(RUN) ./perl TEST -minitest base/*.t comp/*.t cmd/*.t run/*.t io/*.t op/*.t uni/*.t mro/*.t </dev/tty
+		&& $(LDLIBPTH) $(RUN) ./perl TEST -minitest base/*.t comp/*.t cmd/*.t run/*.t io/*.t op/*.t uni/*.t </dev/tty
 
 # Test via harness
 
