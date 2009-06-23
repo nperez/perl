@@ -9,7 +9,7 @@
 
 package Data::Dumper;
 
-$VERSION = '2.121_19';
+$VERSION = '2.122';
 
 #$| = 1;
 
@@ -101,7 +101,7 @@ sub new {
   return bless($s, $c);
 }
 
-if ($] >= 5.006) {
+if ($] >= 5.008) {
   # Packed numeric addresses take less memory. Plus pack is faster than sprintf
   *init_refaddr_format = sub {};
 

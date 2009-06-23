@@ -6,7 +6,7 @@ BEGIN {
     require './test.pl';
 }
 
-print "1..98\n";
+print "1..99\n";
 
 eval 'print "ok 1\n";';
 
@@ -539,10 +539,21 @@ END_EVAL_TEST
    my $ok = runperl(progfile => $tempfile);
    print "not " unless $ok;
    print "ok $test # eval { 1 } completly resets \$@\n";
-
-   $test++;
 }
 else {
-  print "ok $test # skipped - eval { 1 } completly resets \$@";
+  print "ok $test # skipped - eval { 1 } completly resets \$@\n";
 }
+$test++;
 
+# Test that "use feature" and other hint transmission in evals and s///ee
+# don't leak memory
+{
+    use feature qw(:5.10);
+    my $count_expected = ($^H & 0x20000) ? 2 : 1;
+    my $t;
+    my $s = "a";
+    $s =~ s/a/$t = \%^H;  qq( qq() );/ee;
+    print "not " if Internals::SvREFCNT(%$t) != $count_expected;
+    print "ok $test - RT 63110\n";
+    $test++;
+}

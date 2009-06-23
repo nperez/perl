@@ -1443,8 +1443,10 @@ Perl_hv_copy_hints_hv(pTHX_ HV *const ohv)
 	hv_iterinit(ohv);
 	while ((entry = hv_iternext_flags(ohv, 0))) {
 	    SV *const sv = newSVsv(HeVAL(entry));
+	    SV *heksv = newSVhek(HeKEY_hek(entry));
 	    sv_magic(sv, NULL, PERL_MAGIC_hintselem,
-		     (char *)newSVhek (HeKEY_hek(entry)), HEf_SVKEY);
+		     (char *)heksv, HEf_SVKEY);
+	    SvREFCNT_dec(heksv);
 	    (void)hv_store_flags(hv, HeKEY(entry), HeKLEN(entry),
 				 sv, HeHASH(entry), HeKFLAGS(entry));
 	}
@@ -2141,26 +2143,31 @@ Perl_hv_iternext_flags(pTHX_ HV *hv, I32 flags)
             }
 	}
     }
-    while (!entry) {
-	/* OK. Come to the end of the current list.  Grab the next one.  */
 
-	iter->xhv_riter++; /* HvRITER(hv)++ */
-	if (iter->xhv_riter > (I32)xhv->xhv_max /* HvRITER(hv) > HvMAX(hv) */) {
-	    /* There is no next one.  End of the hash.  */
-	    iter->xhv_riter = -1; /* HvRITER(hv) = -1 */
-	    break;
-	}
-	entry = (HvARRAY(hv))[iter->xhv_riter];
+    /* Skip the entire loop if the hash is empty.   */
+    if ((flags & HV_ITERNEXT_WANTPLACEHOLDERS)
+	? HvTOTALKEYS(hv) : HvUSEDKEYS(hv)) {
+	while (!entry) {
+	    /* OK. Come to the end of the current list.  Grab the next one.  */
 
-        if (!(flags & HV_ITERNEXT_WANTPLACEHOLDERS)) {
-            /* If we have an entry, but it's a placeholder, don't count it.
-	       Try the next.  */
-	    while (entry && HeVAL(entry) == &PL_sv_placeholder)
-		entry = HeNEXT(entry);
+	    iter->xhv_riter++; /* HvRITER(hv)++ */
+	    if (iter->xhv_riter > (I32)xhv->xhv_max /* HvRITER(hv) > HvMAX(hv) */) {
+		/* There is no next one.  End of the hash.  */
+		iter->xhv_riter = -1; /* HvRITER(hv) = -1 */
+		break;
+	    }
+	    entry = (HvARRAY(hv))[iter->xhv_riter];
+
+	    if (!(flags & HV_ITERNEXT_WANTPLACEHOLDERS)) {
+		/* If we have an entry, but it's a placeholder, don't count it.
+		   Try the next.  */
+		while (entry && HeVAL(entry) == &PL_sv_placeholder)
+		    entry = HeNEXT(entry);
+	    }
+	    /* Will loop again if this linked list starts NULL
+	       (for HV_ITERNEXT_WANTPLACEHOLDERS)
+	       or if we run through it and find only placeholders.  */
 	}
-	/* Will loop again if this linked list starts NULL
-	   (for HV_ITERNEXT_WANTPLACEHOLDERS)
-	   or if we run through it and find only placeholders.  */
     }
 
     if (oldentry && HvLAZYDEL(hv)) {		/* was deleted earlier? */

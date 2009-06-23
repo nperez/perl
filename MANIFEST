@@ -1290,6 +1290,7 @@ ext/Test-Harness/t/compat/inc-propagation.t		Test::Harness test
 ext/Test-Harness/t/compat/inc_taint.t			Test::Harness test
 ext/Test-Harness/t/compat/nonumbers.t			Test::Harness test
 ext/Test-Harness/t/compat/regression.t			Test::Harness test
+ext/Test-Harness/t/compat/switches.t			Test::Harness test
 ext/Test-Harness/t/compat/test-harness-compat.t		Test::Harness test
 ext/Test-Harness/t/compat/version.t			Test::Harness test
 ext/Test-Harness/t/console.t				Test::Harness test
@@ -1331,6 +1332,7 @@ ext/Test-Harness/t/perl5lib.t				Test::Harness test
 ext/Test-Harness/t/premature-bailout.t			Test::Harness test
 ext/Test-Harness/t/process.t				Test::Harness test
 ext/Test-Harness/t/proveenv.t				Test::Harness test
+ext/Test-Harness/t/proverc/emptyexec			Test data for Test::Harness
 ext/Test-Harness/t/proverc.t				Test::Harness test
 ext/Test-Harness/t/proverun.t				Test::Harness test
 ext/Test-Harness/t/prove.t				Test::Harness test
@@ -1390,6 +1392,7 @@ ext/Test-Harness/t/sample-tests/version_late		Test data for Test::Harness
 ext/Test-Harness/t/sample-tests/version_old		Test data for Test::Harness
 ext/Test-Harness/t/sample-tests/vms_nit			Test data for Test::Harness
 ext/Test-Harness/t/sample-tests/with_comments		Test data for Test::Harness
+ext/Test-Harness/t/sample-tests/zero_valid		Test data for Test::Harness
 ext/Test-Harness/t/scheduler.t				Test::Harness test
 ext/Test-Harness/t/source.t				Test::Harness test
 ext/Test-Harness/t/source_tests/harness			Test data for Test::Harness
@@ -2142,12 +2145,10 @@ lib/ExtUtils/Install.pm		Handles 'make install' on extensions
 lib/ExtUtils/instmodsh		Give information about installed extensions
 lib/ExtUtils/Liblist/Kid.pm	Does the real work of the above
 lib/ExtUtils/Liblist.pm		Locates libraries
-lib/ExtUtils/MakeMaker/bytes.pm	Version agnostic bytes.pm
 lib/ExtUtils/MakeMaker/Config.pm	MakeMaker wrapper for Config
 lib/ExtUtils/MakeMaker/FAQ.pod	MakeMaker FAQ
 lib/ExtUtils/MakeMaker.pm	Write Makefiles for extensions
 lib/ExtUtils/MakeMaker/Tutorial.pod	Writing a module with MakeMaker
-lib/ExtUtils/MakeMaker/vmsish.pm	Platform agnostic vmsish.pm
 lib/ExtUtils/Manifest.pm	Utilities to write MANIFEST files
 lib/ExtUtils/MANIFEST.SKIP	The default MANIFEST.SKIP
 lib/ExtUtils/Mkbootstrap.pm	Writes a bootstrap file (see MakeMaker)
@@ -2179,12 +2180,12 @@ lib/ExtUtils/ParseXS/t/XSTest.xs	Test file for ExtUtils::ParseXS tests
 lib/ExtUtils/PATCHING		Suggestions for patching MakeMaker
 lib/ExtUtils/README		MakeMaker README
 lib/ExtUtils/t/00compile.t	See if MakeMaker modules compile
+lib/ExtUtils/t/arch_check.t	Test MakeMaker's arch_check()
 lib/ExtUtils/t/backwards.t	Check MakeMaker's backwards compatibility
 lib/ExtUtils/t/basic_finish.pl	See if MakeMaker can build a module (part 2)
 lib/ExtUtils/t/basic.pl		See if MakeMaker can build a module (part 1)
 lib/ExtUtils/t/basic.t		See if MakeMaker can build a module (wrapper for basic.pl and basic_finish.pl)
 lib/ExtUtils/t/build_man.t	Set if MakeMaker builds manpages
-lib/ExtUtils/t/bytes.t		Test ExtUtils::MakeMaker::bytes
 lib/ExtUtils/t/can_write_dir.t	Does the _can_write_dir function of ExtUtils::Install work properly?
 lib/ExtUtils/t/cd.t		Test to see cd works
 lib/ExtUtils/t/config.t		Test ExtUtils::MakeMaker::Config
@@ -2196,6 +2197,7 @@ lib/ExtUtils/testlib.pm		Fixes up @INC to use just-built extension
 lib/ExtUtils/t/eu_command.t	See if ExtUtils::Command works
 lib/ExtUtils/t/FIRST_MAKEFILE.t		See if FIRST_MAKEFILE works
 lib/ExtUtils/t/fixin.t		See if ExtUtils::MakeMaker works
+lib/ExtUtils/t/fix_libs.t	Test for ExtUtils::MakeMaker
 lib/ExtUtils/t/hints.t		See if hint files are honored.
 lib/ExtUtils/t/Installapi2.t	See if new api for ExtUtils::Install::install() works
 lib/ExtUtils/t/INSTALL_BASE.t	Test INSTALL_BASE in MakeMaker
@@ -2203,6 +2205,7 @@ lib/ExtUtils/t/Installed.t	See if ExtUtils::Installed works
 lib/ExtUtils/t/Install.t	See if ExtUtils::Install works
 lib/ExtUtils/t/INST_PREFIX.t	See if MakeMaker can apply PREFIXs
 lib/ExtUtils/t/INST.t		Check MakeMaker INST_* macros
+lib/ExtUtils/t/is_of_type.t	Test for ExtUtils::MakeMaker
 lib/ExtUtils/t/Liblist.t	See if ExtUtils::Liblist works
 lib/ExtUtils/t/make.t		See if make detection works
 lib/ExtUtils/t/maketext_filter.t	See if maketext_filter works
@@ -2210,6 +2213,7 @@ lib/ExtUtils/t/Manifest.t	See if ExtUtils::Manifest works
 lib/ExtUtils/t/metafile_data.t	See if META.yml handling works
 lib/ExtUtils/t/metafile_file.t	See if META.yml handling works
 lib/ExtUtils/t/min_perl_version.t	Test the MIN_PERL_VERSION argument to WriteMakefile.
+lib/ExtUtils/t/miniperl.t	Test MakeMaker with miniperl
 lib/ExtUtils/t/Mkbootstrap.t	See if ExtUtils::Mkbootstrap works
 lib/ExtUtils/t/MM_Any.t		See if ExtUtils::MM_Any works
 lib/ExtUtils/t/MM_BeOS.t	See if ExtUtils::MM_BeOS works
@@ -2225,6 +2229,8 @@ lib/ExtUtils/t/Packlist.t	See if Packlist works
 lib/ExtUtils/t/parse_version.t	See if parse_version works
 lib/ExtUtils/t/PL_FILES.t	Test PL_FILES in MakeMaker
 lib/ExtUtils/t/pm.t		See if MakeMaker can handle PM
+lib/ExtUtils/t/pm_to_blib.t	Test for ExtUtils::MakeMaker
+lib/ExtUtils/t/pod2man.t	See if MakeMaker can handle no pod2man
 lib/ExtUtils/t/postamble.t	See if postamble works
 lib/ExtUtils/t/prefixify.t	See if MakeMaker can apply a PREFIX
 lib/ExtUtils/t/prereq_print.t	See if PREREQ_PRINT works
@@ -2234,9 +2240,10 @@ lib/ExtUtils/t/prompt.t		See if E::MM::prompt() works
 lib/ExtUtils/t/recurs.t		See if recursive builds work
 lib/ExtUtils/t/revision.t	See if $Revision is correct
 lib/ExtUtils/t/split_command.t	See if MM's xargs-like function works
+lib/ExtUtils/t/testdata/reallylongdirectoryname/arch1/Config.pm		test data for MakeMaker
+lib/ExtUtils/t/testdata/reallylongdirectoryname/arch2/Config.pm		test data for MakeMaker
 lib/ExtUtils/t/testlib.t	See if ExtUtils::testlib works
 lib/ExtUtils/t/VERSION_FROM.t	See if MakeMaker's VERSION_FROM works
-lib/ExtUtils/t/vmsish.t	Test ExtUtils::MakeMaker::vmsish
 lib/ExtUtils/t/WriteEmptyMakefile.t	See if WriteEmptyMakefile works
 lib/ExtUtils/t/writemakefile_args.t	See if WriteMakefile works
 lib/ExtUtils/t/xs.t		Part of MakeMaker's test suite
@@ -2690,6 +2697,7 @@ lib/NEXT/README			NEXT
 lib/NEXT/t/actual.t		NEXT
 lib/NEXT/t/actuns.t		NEXT
 lib/NEXT/t/next.t		NEXT
+lib/NEXT/t/dynamically_scoped_regex_vars.t	NEXT
 lib/NEXT/t/stringify.t	NEXT
 lib/NEXT/t/unseen.t		NEXT
 lib/Object/Accessor.pm	Object::Accessor
@@ -2756,6 +2764,7 @@ lib/perl5db.pl			Perl debugging routines
 lib/perl5db.t			Tests for the Perl debugger
 lib/perl5db/t/eval-line-bug	Tests for the Perl debugger
 lib/perl5db/t/lvalue-bug	Tests for the Perl debugger
+lib/perl5db/t/symbol-table-bug	Tests for the Perl debugger
 lib/PerlIO.pm			PerlIO support module
 lib/PerlIO/via/QuotedPrint.pm	PerlIO::via::QuotedPrint
 lib/PerlIO/via/t/QuotedPrint.t	PerlIO::via::QuotedPrint
@@ -3708,6 +3717,7 @@ Porting/genlog		Generate formatted changelogs by querying p4d
 Porting/git-find-p4-change	Find the change for a p4 change number
 Porting/git-make-p4-refs	Output git refs for each p4 change number, suitable for appending to .git/packed-refs
 Porting/Glossary	Glossary of config.sh variables
+Porting/how_to_write_a_perldelta.pod	Bluffer's guide to writing a perldelta.
 Porting/Maintainers	Program to pretty print info in Maintainers.pl
 Porting/Maintainers.pl	Information about maintainers
 Porting/Maintainers.pm	Library to pretty print info in Maintainers.pl
@@ -3857,6 +3867,7 @@ t/base/num.t			See if numbers work
 t/base/pat.t			See if pattern matching works
 t/base/rs.t			See if record-read works
 t/base/term.t			See if various terms work
+t/benchmark/rt26188-speed-up-keys-on-empty-hash.t	Benchmark if keys on empty hashes is fast enough
 t/cmd/elsif.t			See if else-if works
 t/cmd/for.t			See if for loops work
 t/cmd/mod.t			See if statement modifiers work
@@ -3893,6 +3904,7 @@ t/io/binmode.t			See if binmode() works
 t/io/crlf.t			See if :crlf works
 t/io/crlf_through.t		See if pipe passes data intact with :crlf
 t/io/dup.t			See if >& works right
+t/io/errno.t			See if $! is correctly set
 t/io/fflush.t			See if auto-flush on fork/exec/system/qx works
 t/io/fs.t			See if directory manipulations work
 t/io/inplace.t			See if inplace editing works
@@ -3976,6 +3988,7 @@ t/lib/locale/latin1		Part of locale.t in Latin 1
 t/lib/locale/utf8		Part of locale.t in UTF8
 t/lib/MakeMaker/Test/Setup/BFD.pm	MakeMaker test utilities
 t/lib/MakeMaker/Test/Setup/MPV.pm	MakeMaker test utilities
+t/lib/MakeMaker/Test/NoXS.pm		MakeMaker test utilities
 t/lib/MakeMaker/Test/Setup/PL_FILES.pm	MakeMaker test utilities
 t/lib/MakeMaker/Test/Setup/Problem.pm	MakeMaker test utilities
 t/lib/MakeMaker/Test/Setup/Recurs.pm	MakeMaker test utilities

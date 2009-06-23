@@ -1784,12 +1784,14 @@ PerlIO_has_base(PerlIO *f)
 int
 PerlIO_fast_gets(PerlIO *f)
 {
-    if (PerlIOValid(f) && (PerlIOBase(f)->flags & PERLIO_F_FASTGETS)) {
-	 const PerlIO_funcs * const tab = PerlIOBase(f)->tab;
+    if (PerlIOValid(f)) {
+	 if (PerlIOBase(f)->flags & PERLIO_F_FASTGETS) {
+	     const PerlIO_funcs * const tab = PerlIOBase(f)->tab;
 
-	 if (tab)
-	      return (tab->Set_ptrcnt != NULL);
-	 SETERRNO(EINVAL, LIB_INVARG);
+	     if (tab)
+		  return (tab->Set_ptrcnt != NULL);
+	     SETERRNO(EINVAL, LIB_INVARG);
+	 }
     }
     else
 	 SETERRNO(EBADF, SS_IVCHAN);
@@ -5172,7 +5174,9 @@ PerlIO_tmpfile(void)
 	  f = PerlIO_fdopen(fd, "w+b");
 #else /* WIN32 */
 #    if defined(HAS_MKSTEMP) && ! defined(VMS) && ! defined(OS2)
-     SV * const sv = newSVpvs("/tmp/PerlIO_XXXXXX");
+     const char * const tmpdir = PerlEnv_getenv("TMPDIR");
+     SV * const sv = newSVpv(tmpdir ? tmpdir : "/tmp", 0);
+     sv_catpv(sv, "/PerlIO_XXXXXX");
      /*
       * I have no idea how portable mkstemp() is ... NI-S
       */
