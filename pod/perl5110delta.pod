@@ -13,7 +13,7 @@ development releases.
 
 The handling of complex expressions by the C<given>/C<when> switch
 statement has been enhanced. There are two new cases where C<when> now
-inteprets its argument as a boolean, instead of an expression to be used
+interprets its argument as a boolean, instead of an expression to be used
 in a smart match:
 
 =over 4
@@ -108,6 +108,14 @@ to avoid relying on the object's underlying structure).
 
 This pragma allows you to lexically disable or enable overloading
 for some or all operations. (Yuval Kogman)
+
+=head2 C<\N> regex escape
+
+A new regex escape has been added, C<\N>. It will match any character that
+is not a newline, independently from the presence or absence of the single
+line match modifier C</s>. (If C<\N> is followed by an opening brace and
+by a letter, perl will still assume that a Unicode character name is
+coming, so compatibility is preserved.) (Rafael Garcia-Suarez)
 
 =head1 Modules and Pragmata
 

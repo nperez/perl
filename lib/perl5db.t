@@ -8,6 +8,7 @@ BEGIN {
 
 use strict;
 use warnings;
+use Config;
 
 BEGIN {
     if (!-c "/dev/null") {
@@ -26,7 +27,7 @@ my $dev_tty = '/dev/tty';
     }
 }
 
-plan(3);
+plan(5);
 
 sub rc {
     open RC, ">", ".perldb" or die $!;
@@ -86,6 +87,26 @@ like($contents, qr/sub factorial/,
     local $ENV{PERLDB_OPTS} = "ReadLine=0 NonStop=1";
     my $output = runperl(switches => [ '-d' ], progfile => '../lib/perl5db/t/symbol-table-bug');
     like($output, qr/Undefined symbols 0/, 'there are no undefined values in the symbol table');
+}
+
+SKIP: {
+    if ( $Config{usethreads} ) {
+        skip('This perl has threads, skipping non-threaded debugger tests');
+    } else {
+        my $error = 'This Perl not built to support threads';
+        my $output = runperl( switches => [ '-dt' ], stderr => 1 );
+        like($output, qr/$error/, 'Perl debugger correctly complains that it was not built with threads');
+    }
+
+}
+SKIP: {
+    if ( $Config{usethreads} ) {
+        local $ENV{PERLDB_OPTS} = "ReadLine=0 NonStop=1";
+        my $output = runperl(switches => [ '-dt' ], progfile => '../lib/perl5db/t/symbol-table-bug');
+        like($output, qr/Undefined symbols 0/, 'there are no undefined values in the symbol table when running with thread support');
+    } else {
+        skip("This perl is not threaded, skipping threaded debugger tests");
+    }
 }
 
 # clean up.

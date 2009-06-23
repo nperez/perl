@@ -39,7 +39,7 @@ package Maintainers;
     'jesse'   	=> 'Jesse Vincent <jesse@bestpractical.com>',
     'jhi'	=> 'Jarkko Hietaniemi <jhi@cpan.org>',
     'jjore'	=> 'Joshua ben Jore <jjore@cpan.org>',
-    'jpeacock'	=> 'John Peacock <jpeacock@rowman.com>',
+    'jpeacock'	=> 'John Peacock <jpeacock@cpan.org>',
     'jstowe'	=> 'Jonathan Stowe <jstowe@cpan.org>',
     'jv'	=> 'Johan Vromans <jv@cpan.org>',
     'kane'	=> 'Jos Boumans <kane@cpan.org>',
@@ -88,6 +88,21 @@ package Maintainers;
     'zefram'	=> 'Andrew Main <zefram@cpan.org>',
     );
 
+
+# IGNORABLE: files which, if they appear in the root of a CPAN
+# distribution, need not appear in core (i.e. core-cpan-diff won't
+# complain if it can't find them)
+
+@IGNORABLE = qw(
+    .cvsignore .dualLivedDiffConfig .gitignore
+    ANNOUNCE Announce Artistic AUTHORS BENCHMARK BUGS Build.PL
+    CHANGELOG ChangeLog CHANGES Changes COPYING Copying CREDITS
+    GOALS HISTORY INSTALL INSTALL.SKIP LICENSE Makefile.PL
+    MANIFEST MANIFEST.SKIP META.yml NEW NOTES ppport.h README
+    SIGNATURE THANKS TODO Todo VERSION WHATSNEW
+);
+
+ 
 # Each entry in the  %Modules hash roughly represents a distribution,
 # except in the case of CPAN=1, where it *exactly* represents a single
 # CPAN distribution.
@@ -119,12 +134,43 @@ package Maintainers;
 # included in core are derived from. Note that the file's version may not
 # necessarily match the newest version on CPAN.
 
+# EXCLUDED is a list of files to be excluded from a CPAN tarball before
+# comparing the remaining contents with core. Each item can either be a
+# full pathname (eg 't/foo.t') or a pattern (e.g. qr{^t/}).
+# It defaults to the empty list.
+
+# MAP is a hash that maps CPAN paths to their core equivalents.
+# Each key reprepresents a string prefix, with longest prefixes checked
+# first. The first match causes that prefix to be replaced with the
+# corresponding key. For example, with the following MAP:
+#   { 
+#     'lib/'	 => 'lib/',
+#     ''	 => 'lib/Foo/',
+#   },
+#
+# these files are mapped as shown:
+#
+#    README     becomes lib/Foo/README
+#    lib/Foo.pm becomes lib/Foo.pm 
+#
+# The default is dependent on the type of module.
+# For distributions which appear to be stored under ext/, it defaults to:
+#
+#   { '' => 'ext/Foo-Bar/' }
+#
+# otherwise, it's
+#
+#   { 
+#     'lib/'	 => 'lib/',
+#     ''	 => 'lib/Foo/Bar/',
+#   }
+
 %Modules = (
 
     'Archive::Extract' =>
 	{
 	'MAINTAINER'	=> 'kane',
-	'DISTRIBUTION'	=> 'KANE/Archive-Extract-0.31_03.tar.gz',
+	'DISTRIBUTION'	=> 'KANE/Archive-Extract-0.32.tar.gz',
 	'FILES'		=> q[lib/Archive/Extract.pm lib/Archive/Extract],
 	'CPAN'		=> 1,
 	'UPSTREAM'	=> 'cpan',
@@ -133,7 +179,7 @@ package Maintainers;
     'Archive::Tar' =>
 	{
 	'MAINTAINER'	=> 'kane',
-	'DISTRIBUTION'	=> 'KANE/Archive-Tar-1.48.tar.gz',
+	'DISTRIBUTION'	=> 'KANE/Archive-Tar-1.52.tar.gz',
 	'FILES'		=> q[lib/Archive/Tar.pm lib/Archive/Tar],
 	'CPAN'		=> 1,
 	'UPSTREAM'	=> 'cpan',
@@ -142,7 +188,7 @@ package Maintainers;
     'Attribute::Handlers' =>
 	{
 	'MAINTAINER'	=> 'rgarcia',
-	'DISTRIBUTION'	=> 'SMUELLER/Attribute-Handlers-0.83.tar.gz',
+	'DISTRIBUTION'	=> 'SMUELLER/Attribute-Handlers-0.85.tar.gz',
 	'FILES'		=> q[ext/Attribute-Handlers],
 	'CPAN'		=> 1,
 	'UPSTREAM'	=> "blead",
@@ -390,7 +436,7 @@ package Maintainers;
     'CPANPLUS' =>
 	{
 	'MAINTAINER'	=> 'kane',
-	'DISTRIBUTION'	=> 'KANE/CPANPLUS-0.8601.tar.gz',
+	'DISTRIBUTION'	=> 'KANE/CPANPLUS-0.87_02.tar.gz',
 	'FILES'		=> q[lib/CPANPLUS.pm
 			     lib/CPANPLUS/Backend
 			     lib/CPANPLUS/Backend.pm
@@ -419,6 +465,8 @@ package Maintainers;
 	'EXCLUDED'	=> [ qr{^inc/},
 			     qr{^t/dummy-.*\.hidden$},
 			     qw{ bin/cpanp-boxed
+				 t/031_CPANPLUS-Internals-Source-SQLite.t
+				 t/032_CPANPLUS-Internals-Source-via-sqlite.t
 			       },
 			   ],
 	'CPAN'		=> 1,
@@ -428,7 +476,7 @@ package Maintainers;
     'CPANPLUS::Dist::Build' =>
 	{
 	'MAINTAINER'	=> 'bingos',
-	'DISTRIBUTION'	=> 'BINGOS/CPANPLUS-Dist-Build-0.32.tar.gz',
+	'DISTRIBUTION'	=> 'BINGOS/CPANPLUS-Dist-Build-0.34.tar.gz',
 	'FILES'		=> q[lib/CPANPLUS/Dist/Build.pm
 			     lib/CPANPLUS/Dist/Build
 			    ],
@@ -468,7 +516,7 @@ package Maintainers;
     'Devel::PPPort' =>
 	{
 	'MAINTAINER'	=> 'mhx',
-	'DISTRIBUTION'	=> 'MHX/Devel-PPPort-3.17.tar.gz',
+	'DISTRIBUTION'	=> 'MHX/Devel-PPPort-3.18.tar.gz',
 	'FILES'		=> q[ext/Devel-PPPort],
 	'EXCLUDED'	=> [ qw{PPPort.pm} ], # we use PPPort_pm.PL instead
 	'CPAN'		=> 1,
@@ -478,7 +526,7 @@ package Maintainers;
     'Digest' =>
 	{
 	'MAINTAINER'	=> 'gaas',
-	'DISTRIBUTION'	=> 'GAAS/Digest-1.15.tar.gz',
+	'DISTRIBUTION'	=> 'GAAS/Digest-1.16.tar.gz',
 	'FILES'		=> q[lib/Digest.pm lib/Digest],
 	'EXCLUDED'	=> [ qw{digest-bench} ],
 	'MAP'		=> { 'Digest/'	=> 'lib/Digest/',
@@ -492,7 +540,7 @@ package Maintainers;
     'Digest::MD5' =>
 	{
 	'MAINTAINER'	=> 'gaas',
-	'DISTRIBUTION'	=> 'GAAS/Digest-MD5-2.38.tar.gz',
+	'DISTRIBUTION'	=> 'GAAS/Digest-MD5-2.39.tar.gz',
 	'FILES'		=> q[ext/Digest-MD5],
 	'EXCLUDED'	=> [ qw{rfc1321.txt} ],
 	'CPAN'		=> 1,
@@ -756,7 +804,7 @@ package Maintainers;
     'Filter::Util::Call' =>
 	{
 	'MAINTAINER'	=> 'pmqs',
-	'DISTRIBUTION'	=> 'PMQS/Filter-1.36.tar.gz',
+	'DISTRIBUTION'	=> 'PMQS/Filter-1.37.tar.gz',
 	'FILES'		=> q[ext/Filter-Util-Call
 			     t/lib/filter-util.pl
 			     pod/perlfilter.pod
@@ -830,7 +878,7 @@ package Maintainers;
     'IO' =>
 	{
 	'MAINTAINER'	=> 'gbarr',
-	'DISTRIBUTION'	=> 'GBARR/IO-1.24.tar.gz',
+	'DISTRIBUTION'	=> 'GBARR/IO-1.25.tar.gz',
 	'FILES'		=> q[ext/IO/],
 	'EXCLUDED'	=> [ qw{t/test.pl}, ],
 	'CPAN'		=> 1,
@@ -1112,7 +1160,7 @@ package Maintainers;
     'MIME::Base64' =>
 	{
 	'MAINTAINER'	=> 'gaas',
-	'DISTRIBUTION'	=> 'GAAS/MIME-Base64-3.07.tar.gz',
+	'DISTRIBUTION'	=> 'GAAS/MIME-Base64-3.08.tar.gz',
 	'FILES'		=> q[ext/MIME-Base64],
 	'EXCLUDED'	=> [ qw{ t/bad-sv.t }, ],
 	'CPAN'		=> 1,
@@ -1122,11 +1170,11 @@ package Maintainers;
     'Module::Build' =>
 	{
 	'MAINTAINER'	=> 'kwilliams',
-	'DISTRIBUTION'	=> 'EWILHELM/Module-Build-0.32.tar.gz',
+	'DISTRIBUTION'	=> 'DAGOLDEN/Module-Build-0.33_02.tar.gz',
 	'FILES'		=> q[lib/Module/Build lib/Module/Build.pm],
-	'EXCLUDED'	=> [ qw{ t/par.t t/signature.t }, ],
+	'EXCLUDED'	=> [ qw{ t/par.t t/signature.t scripts/bundle.pl}, ],
 	'CPAN'		=> 1,
-	'UPSTREAM'	=> undef,
+	'UPSTREAM'	=> 'cpan',
 	},
 
     'Module::CoreList' =>
@@ -1186,7 +1234,7 @@ package Maintainers;
     'Net::Ping' =>
 	{
 	'MAINTAINER'	=> 'smpeters',
-	'DISTRIBUTION'	=> 'SMPETERS/Net-Ping-2.35.tar.gz',
+	'DISTRIBUTION'	=> 'SMPETERS/Net-Ping-2.36.tar.gz',
 	'FILES'		=> q[lib/Net/Ping.pm lib/Net/Ping],
 	'CPAN'		=> 1,
 	'UPSTREAM'	=> 'blead',
@@ -1195,7 +1243,7 @@ package Maintainers;
     'NEXT' =>
 	{
 	'MAINTAINER'	=> 'rafl',
-	'DISTRIBUTION'	=> 'FLORA/NEXT-0.63.tar.gz',
+	'DISTRIBUTION'	=> 'FLORA/NEXT-0.64.tar.gz',
 	'FILES'		=> q[lib/NEXT.pm lib/NEXT],
 	'EXCLUDED'	=> [ qr{^demo/} ],
 	'CPAN'		=> 1,
@@ -1588,20 +1636,6 @@ package Maintainers;
 	'UPSTREAM'	=> undef,
 	},
 
-    'Text-Tabs+Wrap' =>
-	{
-	'MAINTAINER'	=> 'muir',
-	'DISTRIBUTION'	=> 'MUIR/modules/Text-Tabs+Wrap-2009.0305.tar.gz',
-	'FILES'		=> q[lib/Text/{Tabs,Wrap}.pm lib/Text/TabsWrap],
-	'EXCLUDED'	=> [ qw( t/dnsparks.t ) ], # see af6492bf9e
-	'MAP'		=> {
-			     ''    => 'lib/Text/TabsWrap/',
-			     'lib/'=> 'lib/',
-			   },
-	'CPAN'		=> 1,
-	'UPSTREAM'	=> 'cpan',
-	},
-
     'Term::ANSIColor' =>
 	{
 	'MAINTAINER'	=> 'rra',
@@ -1764,6 +1798,20 @@ package Maintainers;
 	'UPSTREAM'	=> undef,
 	},
 
+    'Text-Tabs+Wrap' =>
+	{
+	'MAINTAINER'	=> 'muir',
+	'DISTRIBUTION'	=> 'MUIR/modules/Text-Tabs+Wrap-2009.0305.tar.gz',
+	'FILES'		=> q[lib/Text/{Tabs,Wrap}.pm lib/Text/TabsWrap],
+	'EXCLUDED'	=> [ qw( t/dnsparks.t ) ], # see af6492bf9e
+	'MAP'		=> {
+			     ''    => 'lib/Text/TabsWrap/',
+			     'lib/'=> 'lib/',
+			   },
+	'CPAN'		=> 1,
+	'UPSTREAM'	=> 'cpan',
+	},
+
     'Thread::Queue' =>
 	{
 	'MAINTAINER'	=> 'jdhedden',
@@ -1795,7 +1843,7 @@ package Maintainers;
     'threads' =>
 	{
 	'MAINTAINER'	=> 'jdhedden',
-	'DISTRIBUTION'	=> 'JDHEDDEN/threads-1.72.tar.gz',
+	'DISTRIBUTION'	=> 'JDHEDDEN/threads-1.73.tar.gz',
 	'FILES'		=> q[ext/threads],
 	'EXCLUDED'	=> [ qw(examples/pool.pl
 				t/pod.t
